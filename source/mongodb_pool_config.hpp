@@ -40,11 +40,11 @@ public:
    MongodbPoolSingletonConfiguration() : _connstr(""), _database("") { }
    MongodbPoolSingletonConfiguration(const std::string & confpath) {
       using boost::property_tree::ptree;
-      ptree pt;
+      ptree conf;
       
-      read_json(confpath, pt);
-      _connstr = pt.get<std::string>("store.connstr");
-      _database = pt.get<std::string>("store.database");
+      read_json(confpath, conf);
+      _connstr = conf.get<std::string>("store.connstr");
+      _database = conf.get<std::string>("store.database");
    }
 
    std::string connstr() const { return _connstr; }

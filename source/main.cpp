@@ -21,12 +21,25 @@
 #include <thread>
 #include <iostream>
 
+#include <mongocxx/exception/exception.hpp>
+#include <bsoncxx/json.hpp>
+
 #include "mongodb_pool_singleton.hpp"
 
 void connectUsingPool() {
-    auto conn = MongodbPoolSingleton::shared().connection().acquire();
-    auto db = (*conn)[MongodbPoolSingleton::_config.database()];
-    auto myColl = db["mycoll"];
+    try {
+        auto conn = MongodbPoolSingleton::shared().connection().acquire();
+        auto db = (*conn)[MongodbPoolSingleton::_config.database()];
+        if (db.has_collection("mycoll")) {
+            auto cursor = db["mycoll"].find({});
+            for (auto && doc : cursor) {
+                std::cout << bsoncxx::to_json(doc) << '\n';
+            }
+        }
+    }
+    catch(mongocxx::exception::system_error & e) {
+        std::cerr << "connection fail: " << e.what() << '\n';
+    }
 }
 
 int main(int argc, const char * argv[]) {
